@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Etiquetas e Romaneio</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    input, .romaneio input {
+        margin-bottom: 10px;
+        width: calc(50% - 10px);
+    }
+    .input-group {
+        display: flex;
+        justify-content: space-between;
+    }
+    .btn-generate, .btn-print, .btn-generate-romaneio {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .labels-container {
+        margin-bottom: 20px;
+    }
+    .label {
+        width: 4.5cm;
+        height: 2.5cm;
+        border: 1px solid black;
+        margin-bottom: 5px;
+        padding: 5px;
+        text-align: center;
+        display: inline-block;
+        vertical-align: top;
+        margin-right: 5px;
+        font-size: 36px;
+        overflow: hidden;
+        white-space: normal;
+    }
+    .romaneio {
+        display: none;
+        margin-top: 30px;
+    }
+    .romaneio-title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .romaneio-section {
+        margin-bottom: 15px;
+    }
+    .romaneio .input-group {
+        margin-bottom: 5px;
+    }
+    .romaneio-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .romaneio-table th, .romaneio-table td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: center;
+    }
+    .romaneio-total {
+        margin-top: 15px;
+        text-align: right;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Gerador de Etiquetas</h2>
+    <div class="input-group">
+        <input type="text" id="region1" placeholder="Nome da Região">
+        <input type="number" id="volume1" placeholder="Volumes">
+    </div>
+    <div class="input-group">
+        <input type="text" id="region2" placeholder="Nome da Região">
+        <input type="number" id="volume2" placeholder="Volumes">
+    </div>
+    <div class="input-group">
+        <input type="text" id="region3" placeholder="Nome da Região">
+        <input type="number" id="volume3" placeholder="Volumes">
+    </div>
+    <div class="input-group">
+        <input type="text" id="region4" placeholder="Nome da Região">
+        <input type="number" id="volume4" placeholder="Volumes">
+    </div>
+    <div class="input-group">
+        <input type="text" id="region5" placeholder="Nome da Região">
+        <input type="number" id="volume5" placeholder="Volumes">
+    </div>
+    <button class="btn-generate" onclick="generateLabels()">Gerar Etiquetas</button>
+    <div class="labels-container" id="labels"></div>
+    <button class="btn-print" onclick="printLabels()">Imprimir Etiquetas</button>
+    <button class="btn-generate-romaneio" onclick="generateRomaneio()">Gerar Romaneio</button>
+
+    <div class="romaneio" id="romaneio">
+        <div class="romaneio-title">LOGÍSTICA DE ENTREGA STYLLUS</div>
+        <div class="romaneio-section">
+            <label>Nota Fiscal: <input type="text" id="notaFiscal"></label>
+        </div>
+        <div class="romaneio-section">
+            <label>Data de Coleta: <span id="dataColeta"></span></label>
+        </div>
+        <div class="romaneio-section">
+            <label>Entrega Prevista: <input type="text" placeholder="dd/mm/yyyy" id="entregaPrevista"></label>
+            <label>Devolução Prevista: <input type="text" placeholder="dd/mm/yyyy" id="devolucaoPrevista"></label>
+        </div>
+        <table class="romaneio-table">
+            <thead>
+                <tr>
+                    <th>Região</th>
+                    <th>Volumes Entrega</th>
+                    <th>Horário de Entrega</th>
+                    <th>Volumes Devolução</th>
+                    <th>Visto Entrega/Coleta</th>
+                </tr>
+            </thead>
+            <tbody id="romaneioBody">
+                <!-- Linhas de romaneio serão inseridas aqui -->
+            </tbody>
+        </table>
+        <div class="romaneio-total" id="totalVolumes">
+            Total de Volumes: 0
+        </div>
+    </div>
+</div>
+
+<script>
+function generateLabels() {
+    var labelsContainer = document.getElementById('labels');
+    labelsContainer.innerHTML = '';
+
+    for (var i = 1; i <= 5; i++) {
+        var regionInput = document.getElementById('region' + i);
+        var volumeInput = document.getElementById('volume' + i);
+
+        var region = regionInput.value.trim();
+        var volumes = parseInt(volumeInput.value);
+
+        if (region !== '' && !isNaN(volumes) && volumes > 0) {
+            for (var j = 1; j <= volumes; j++) {
+                var label = document.createElement('div');
+                var labelText = region + ' ' + j + '/' + volumes;
+                label.textContent = labelText;
+                label.title = labelText;
+                label.className = 'label';
+                labelsContainer.appendChild(label);
+            }
+        }
+    }
+}
+
+function printLabels() {
+    var labelsContainer = document.getElementById('labels');
+    var labelsHtml = labelsContainer.innerHTML;
+    var originalHtml = document.body.innerHTML;
+    document.body.innerHTML = labelsHtml;
+    window.print();
+    document.body.innerHTML = originalHtml;
+}
+
+function generateRomaneio() {
+    var romaneioContainer = document.getElementById('romaneio');
+    var romaneioBody = document.getElementById('romaneioBody');
+    var totalVolumes = 0;
+
+    romaneioBody.innerHTML = ''; // Limpa o corpo da tabela
+
+    for (var i = 1; i <= 5; i++) {
+        var regionInput = document.getElementById('region' + i);
+        var volumeInput = document.getElementById('volume' + i);
+
+        var region = regionInput.value.trim();
+        var volumes = parseInt(volumeInput.value);
+
+        if (region !== '' && !isNaN(volumes) && volumes > 0) {
+            totalVolumes += volumes;
+
+            var row = document.createElement('tr');
+
+            var cellRegion = document.createElement('td');
+            cellRegion.textContent = region;
+            row.appendChild(cellRegion);
+
+            var cellVolumesEntrega = document.createElement('td');
+            cellVolumesEntrega.textContent = volumes;
+            row.appendChild(cellVolumesEntrega);
+
+            var cellHorarioEntrega = document.createElement('td');
+            var inputHorarioEntrega = document.createElement('input');
+            inputHorarioEntrega.type = 'text';
+            row.appendChild(cellHorarioEntrega);
+            cellHorarioEntrega.appendChild(inputHorarioEntrega);
+
+            var cellVolumesDevolucao = document.createElement('td');
+            var inputVolumesDevolucao = document.createElement('input');
+            inputVolumesDevolucao.type = 'number';
+            row.appendChild(cellVolumesDevolucao);
+            cellVolumesDevolucao.appendChild(inputVolumesDevolucao);
+
+            var cellVisto = document.createElement('td');
+            var inputVisto = document.createElement('input');
+            inputVisto.type = 'text';
+            row.appendChild(cellVisto);
+            cellVisto.appendChild(inputVisto);
+
+            romaneioBody.appendChild(row);
+        }
+    }
+
+    document.getElementById('totalVolumes').textContent = 'Total de Volumes: ' + totalVolumes;
+    document.getElementById('dataColeta').textContent = new Date().toLocaleDateString();
+
+    romaneioContainer.style.display = 'block';
+}
+</script>
+</body>
+</html>
